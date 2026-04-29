@@ -1,0 +1,26 @@
+/**
+ * =============================================================
+ *  INTERFACE: Rateable
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Interface                  : contract for any "rateable" entity
+ *  - Multiple Interface Usage   : Driver implements BOTH User inheritance
+ *                                  AND this interface simultaneously
+ *
+ *  Used by the Driver class so passengers can rate drivers
+ *  after completing a ride (as instructed by the professor).
+ * =============================================================
+ */
+public interface Rateable {
+
+    /**
+     * Add a new rating (should be between 1.0 and 5.0).
+     */
+    void addRating(double rating);
+
+    /**
+     * Return the average of all ratings received so far.
+     */
+    double getAverageRating();
+}
