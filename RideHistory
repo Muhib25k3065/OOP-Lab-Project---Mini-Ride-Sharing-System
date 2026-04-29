@@ -1,0 +1,105 @@
+import java.io.*;
+import java.util.ArrayList;
+
+/**
+ * =============================================================
+ *  CLASS: RideHistory  (File I/O)
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - File Handling      : writes/reads ride records to/from a .txt file
+ *  - Exception Handling : try-catch-finally, multiple exception types
+ *  - Static Methods     : all methods are static (utility class pattern)
+ *                         — you call them on the class, not an object
+ *
+ *  Every time a ride is completed, it is appended to "ride_history.txt".
+ *  The file persists even after the program closes (unlike ArrayList).
+ * =============================================================
+ */
+public class RideHistory {
+
+    // File name — stored in the working directory
+    private static final String FILE_NAME = "ride_history.txt";
+
+    // ════════════════════════════════════════════════════════════
+    //  SAVE a completed ride to the file
+    // ════════════════════════════════════════════════════════════
+    /**
+     * Appends one ride record to the history file.
+     * Uses try-with-resources — automatically closes the file even if
+     * an exception is thrown (no need for finally block).
+     */
+    public static void saveRide(Ride ride) {
+        // try-with-resources: FileWriter, BufferedWriter, PrintWriter
+        try (FileWriter   fw = new FileWriter(FILE_NAME, true); // 'true' = append mode
+             BufferedWriter bw = new BufferedWriter(fw);
+             PrintWriter   pw = new PrintWriter(bw)) {
+
+            pw.println(ride.toString());
+            System.out.println("  [File] Ride saved to history.");
+
+        } catch (IOException e) {
+            // IOException covers all file-related errors
+            System.out.println("  [!] Error saving ride: " + e.getMessage());
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  LOAD all ride records from the file
+    // ════════════════════════════════════════════════════════════
+    /**
+     * Reads all lines from the history file.
+     * Demonstrates multiple catch blocks for different exceptions.
+     */
+    public static ArrayList<String> loadHistory() {
+        ArrayList<String> history = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                history.add(line);
+            }
+
+        } catch (FileNotFoundException e) {
+            // Specific exception: file doesn't exist yet (first run)
+            System.out.println("  [File] No history file found yet. "
+                    + "It will be created after your first ride.");
+        } catch (IOException e) {
+            // General exception: any other read error
+            System.out.println("  [!] Error reading history: " + e.getMessage());
+        }
+
+        return history;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  DISPLAY all history to console
+    // ════════════════════════════════════════════════════════════
+    public static void displayHistory() {
+        ArrayList<String> history = loadHistory();
+
+        if (history.isEmpty()) {
+            System.out.println("  No ride history available yet.");
+            return;
+        }
+
+        System.out.println("  ══ Ride History (from file) ══════════════");
+        for (int i = 0; i < history.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + history.get(i));
+        }
+        System.out.println("  ══════════════════════════════════════════");
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  CLEAR history file (admin function)
+    // ════════════════════════════════════════════════════════════
+    public static void clearHistory() {
+        try (FileWriter fw = new FileWriter(FILE_NAME, false)) {
+            // opening with false overwrites (clears) the file
+            System.out.println("  [File] History cleared.");
+        } catch (IOException e) {
+            System.out.println("  [!] Error clearing history: " + e.getMessage());
+        }
+    }
+}
