@@ -1,0 +1,214 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+/**
+ * =============================================================
+ *  CLASS: Ride
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Composition        : Ride "owns" the Passenger (strong relationship)
+ *                         if the Ride is deleted, the contained passenger
+ *                         reference is also released.
+ *  - Aggregation        : Ride "uses" a Driver & Vehicle but doesn't own them.
+ *                         Drivers/Vehicles exist independently.
+ *  - Static Members     : totalRides counter + DATE_FORMAT constant
+ *  - Enum               : RideStatus — a finite set of named constants
+ *  - Nested Static Class: RideDetails — an inner class tied to Ride
+ *  - Constructors       : default, parameterized, copy
+ * =============================================================
+ */
+public class Ride {
+
+    // ════════════════════════════════════════════════════════════
+    //  ENUM — a special type with fixed constant values
+    //  Think of it as named integers: REQUESTED=0, ACCEPTED=1, etc.
+    // ════════════════════════════════════════════════════════════
+    public enum RideStatus {
+        REQUESTED,
+        ACCEPTED,
+        IN_PROGRESS,
+        COMPLETED,
+        CANCELLED
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  NESTED STATIC CLASS
+    //
+    //  A static nested class belongs to the Ride CLASS, not to any
+    //  specific Ride object. You can create it without a Ride instance:
+    //      Ride.RideDetails details = new Ride.RideDetails(...);
+    //
+    //  It holds a lightweight summary (useful for history/receipts).
+    // ════════════════════════════════════════════════════════════
+    public static class RideDetails {
+        private String passengerName;
+        private String driverName;
+        private String vehicleType;
+        private double fare;
+        private String from;
+        private String to;
+        private String time;
+
+        public RideDetails(String passengerName, String driverName,
+                           String vehicleType, double fare,
+                           String from, String to, String time) {
+            this.passengerName = passengerName;
+            this.driverName    = driverName;
+            this.vehicleType   = vehicleType;
+            this.fare          = fare;
+            this.from          = from;
+            this.to            = to;
+            this.time          = time;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("[%s] %s → %s | Passenger: %s | Driver: %s | %s | PKR %.2f",
+                    time, from, to, passengerName, driverName, vehicleType, fare);
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  FIELDS
+    // ════════════════════════════════════════════════════════════
+
+    // Static — shared by all Ride objects; tracks how many were ever made
+    private static int totalRides = 0;
+    private static final String DATE_FORMAT = "dd-MM-yyyy HH:mm";
+
+    private int       rideId;
+    private Passenger passenger;   // Composition (Ride "owns" the request context)
+    private Driver    driver;      // Aggregation (Driver exists independently)
+    private Vehicle   vehicle;     // Aggregation (Vehicle exists independently)
+    private String    pickupLocation;
+    private String    destination;
+    private double    distanceKm;
+    private boolean   isPeakHour;
+    private double    fare;
+    private RideStatus status;
+    private String    rideTime;
+
+    // ════════════════════════════════════════════════════════════
+    //  CONSTRUCTORS
+    // ════════════════════════════════════════════════════════════
+
+    /** Constructor 1: Default */
+    public Ride() {
+        totalRides++;
+        this.rideId   = totalRides;
+        this.status   = RideStatus.REQUESTED;
+        this.rideTime = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+    }
+
+    /** Constructor 2: Parameterized */
+    public Ride(Passenger passenger, Driver driver, Vehicle vehicle,
+                String pickup, String destination,
+                double distanceKm, boolean isPeakHour) {
+        totalRides++;
+        this.rideId          = totalRides;
+        this.passenger       = passenger;
+        this.driver          = driver;
+        this.vehicle         = vehicle;
+        this.pickupLocation  = pickup;
+        this.destination     = destination;
+        this.distanceKm      = distanceKm;
+        this.isPeakHour      = isPeakHour;
+
+        // Runtime Polymorphism: Java calls the correct calculateFare()
+        // based on what the actual Vehicle object is (Car, Bike, etc.)
+        this.fare   = vehicle.calculateFare(distanceKm, isPeakHour);
+        this.status = RideStatus.REQUESTED;
+        this.rideTime = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+    }
+
+    /** Constructor 3: Copy Constructor (shallow copy of references) */
+    public Ride(Ride other) {
+        totalRides++;
+        this.rideId         = totalRides;  // new unique ID for the copy
+        this.passenger      = other.passenger;  // shallow — same reference
+        this.driver         = other.driver;
+        this.vehicle        = other.vehicle;
+        this.pickupLocation = other.pickupLocation;
+        this.destination    = other.destination;
+        this.distanceKm     = other.distanceKm;
+        this.isPeakHour     = other.isPeakHour;
+        this.fare           = other.fare;
+        this.status         = other.status;
+        this.rideTime       = other.rideTime;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  METHODS
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * Marks the ride as COMPLETED and updates passenger & driver state.
+     */
+    public void completeRide() {
+        this.status = RideStatus.COMPLETED;
+        if (passenger != null) passenger.incrementRidesTaken();
+        if (driver    != null) driver.setAvailable(true);
+        System.out.println("  Ride #" + rideId + " completed! Fare: PKR "
+                + String.format("%.2f", fare));
+    }
+
+    /**
+     * Returns a RideDetails object (our nested class) for the receipt/history.
+     */
+    public RideDetails getRideDetails() {
+        return new RideDetails(
+                passenger != null ? passenger.getName() : "N/A",
+                driver    != null ? driver.getName()    : "N/A",
+                vehicle   != null ? vehicle.getVehicleType() : "N/A",
+                fare,
+                pickupLocation,
+                destination,
+                rideTime
+        );
+    }
+
+    /** Print full ride info to console. */
+    public void displayRideInfo() {
+        System.out.println("  ╔══ Ride #" + rideId + " ════════════════════════");
+        System.out.println("  ║ Time        : " + rideTime);
+        System.out.println("  ║ Passenger   : "
+                + (passenger != null ? passenger.getName() : "N/A"));
+        System.out.println("  ║ Driver      : "
+                + (driver != null ? driver.getName() : "N/A"));
+        System.out.println("  ║ Vehicle     : "
+                + (vehicle != null ? vehicle.toString() : "N/A"));
+        System.out.println("  ║ From        : " + pickupLocation);
+        System.out.println("  ║ To          : " + destination);
+        System.out.printf( "  ║ Distance    : %.1f km%n", distanceKm);
+        System.out.printf( "  ║ Fare        : PKR %.2f%s%n",
+                fare, isPeakHour ? " (Peak Hour +)" : "");
+        System.out.println("  ║ Status      : " + status);
+        System.out.println("  ╚════════════════════════════════════════");
+    }
+
+    // ── Static accessor ─────────────────────────────────────────
+    public static int getTotalRides() { return totalRides; }
+
+    // ── Getters & Setters ────────────────────────────────────────
+    public int        getRideId()                            { return rideId;          }
+    public Passenger  getPassenger()                         { return passenger;       }
+    public void       setPassenger(Passenger p)              { this.passenger = p;     }
+    public Driver     getDriver()                            { return driver;          }
+    public void       setDriver(Driver d)                    { this.driver = d;        }
+    public Vehicle    getVehicle()                           { return vehicle;         }
+    public double     getFare()                              { return fare;            }
+    public RideStatus getStatus()                            { return status;          }
+    public void       setStatus(RideStatus status)           { this.status = status;   }
+    public String     getPickupLocation()                    { return pickupLocation;  }
+    public String     getDestination()                       { return destination;     }
+    public double     getDistanceKm()                        { return distanceKm;      }
+    public String     getRideTime()                          { return rideTime;        }
+
+    @Override
+    public String toString() {
+        return getRideDetails().toString();
+    }
+}
