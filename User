@@ -1,0 +1,109 @@
+/**
+ * =============================================================
+ *  ABSTRACT CLASS: User
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Abstraction          : abstract class cannot be instantiated directly;
+ *                           forces subclasses to implement displayInfo()
+ *  - Encapsulation        : all fields are private; accessed via getters/setters
+ *  - Static Members       : totalUsers counter shared across all instances
+ *  - Constructors         : default, parameterized, and copy constructor
+ *  - Destructor (Java)    : finalize() — Java's closest equivalent to a destructor
+ *                           NOTE: finalize() is deprecated in Java 9+; shown
+ *                           here purely for educational / course purposes.
+ *
+ *  Hierarchy:
+ *      User  (abstract)
+ *      ├── Driver
+ *      └── Passenger
+ * =============================================================
+ */
+public abstract class User {
+
+    // ── Private fields (Encapsulation) ──────────────────────────
+    private String name;
+    private int    age;
+    private String gender;
+    private String phoneNumber;
+
+    // ── Static field — counts every User object ever created ────
+    private static int totalUsers = 0;
+
+    // ════════════════════════════════════════════════════════════
+    //  CONSTRUCTORS  (3 types required by course)
+    // ════════════════════════════════════════════════════════════
+
+    /** Constructor 1: Default — no-argument constructor */
+    public User() {
+        this.name        = "Unknown";
+        this.age         = 0;
+        this.gender      = "Unknown";
+        this.phoneNumber = "N/A";
+        totalUsers++;
+    }
+
+    /** Constructor 2: Parameterized — set all fields at creation */
+    public User(String name, int age, String gender, String phoneNumber) {
+        this.name        = name;
+        this.age         = age;
+        this.gender      = gender;
+        this.phoneNumber = phoneNumber;
+        totalUsers++;
+    }
+
+    /**
+     * Constructor 3: Copy Constructor
+     *
+     * DEEP COPY vs SHALLOW COPY note:
+     * Since all fields here are String (immutable) and int (primitive),
+     * copying them directly IS effectively a deep copy — no shared
+     * mutable references exist at this level.
+     */
+    public User(User other) {
+        this.name        = other.name;        // String is immutable — safe
+        this.age         = other.age;         // primitive — copy by value
+        this.gender      = other.gender;
+        this.phoneNumber = other.phoneNumber;
+        totalUsers++;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  GETTERS & SETTERS  (Encapsulation)
+    // ════════════════════════════════════════════════════════════
+
+    public String getName()                       { return name;        }
+    public void   setName(String name)            { this.name = name;   }
+
+    public int    getAge()                        { return age;         }
+    public void   setAge(int age)                 { this.age = age;     }
+
+    public String getGender()                     { return gender;      }
+    public void   setGender(String gender)        { this.gender = gender; }
+
+    public String getPhoneNumber()                { return phoneNumber; }
+    public void   setPhoneNumber(String phone)    { this.phoneNumber = phone; }
+
+    // ── Static method — access without creating an object ───────
+    public static int getTotalUsers() {
+        return totalUsers;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  ABSTRACT METHOD  (Abstraction)
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * Every subclass MUST override this to show its own info.
+     * This is what makes User abstract — it defines WHAT to do,
+     * not HOW to do it.
+     */
+    public abstract void displayInfo();
+
+    // ── toString for easy printing ───────────────────────────────
+    @Override
+    public String toString() {
+        return "Name: " + name + " | Age: " + age
+                + " | Gender: " + gender + " | Phone: " + phoneNumber;
+    }
+}
