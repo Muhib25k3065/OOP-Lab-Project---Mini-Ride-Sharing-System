@@ -1,0 +1,85 @@
+/**
+ * =============================================================
+ *  CLASS: Passenger
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Single Inheritance  : Passenger extends User
+ *  - Encapsulation       : private fields + getters/setters
+ *  - Constructors        : default, parameterized, copy
+ *  - Method Overriding   : displayInfo() overrides User's abstract method
+ *
+ *  A Passenger is a User who requests rides.
+ *  The system tracks how many rides they have taken.
+ * =============================================================
+ */
+public class Passenger extends User {
+
+    // ── Private fields (Encapsulation) ──────────────────────────
+    private int    totalRidesTaken;
+    private String homeAddress;
+
+    // ════════════════════════════════════════════════════════════
+    //  CONSTRUCTORS
+    // ════════════════════════════════════════════════════════════
+
+    /** Constructor 1: Default */
+    public Passenger() {
+        super();
+        this.totalRidesTaken = 0;
+        this.homeAddress     = "N/A";
+    }
+
+    /** Constructor 2: Parameterized */
+    public Passenger(String name, int age, String gender,
+                     String phone, String homeAddress) {
+        super(name, age, gender, phone);
+        this.totalRidesTaken = 0;
+        this.homeAddress     = homeAddress;
+    }
+
+    /** Constructor 3: Copy Constructor */
+    public Passenger(Passenger other) {
+        super(other);
+        this.totalRidesTaken = other.totalRidesTaken;
+        this.homeAddress     = other.homeAddress;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  METHODS
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * Called when a ride is completed — increments ride count.
+     * Only RideSystem should call this; passengers can't self-increment.
+     */
+    public void incrementRidesTaken() {
+        totalRidesTaken++;
+    }
+
+    /**
+     * Prints a ride request message (simulates requesting a ride).
+     */
+    public void requestRide(String destination, String vehicleType) {
+        System.out.println("  " + getName() + " is requesting a "
+                + vehicleType + " to " + destination + "...");
+    }
+
+    // ── Override abstract method from User ───────────────────────
+    @Override
+    public void displayInfo() {
+        System.out.println("  ┌─── PASSENGER INFO ───────────────────────");
+        System.out.println("  │ " + super.toString());
+        System.out.println("  │ Home Address  : " + homeAddress);
+        System.out.println("  │ Rides Taken   : " + totalRidesTaken);
+        System.out.println("  └─────────────────────────────────────────");
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  GETTERS & SETTERS (Encapsulation)
+    // ════════════════════════════════════════════════════════════
+
+    public int    getTotalRidesTaken()             { return totalRidesTaken;  }
+    public String getHomeAddress()                 { return homeAddress;      }
+    public void   setHomeAddress(String address)   { this.homeAddress = address; }
+}
