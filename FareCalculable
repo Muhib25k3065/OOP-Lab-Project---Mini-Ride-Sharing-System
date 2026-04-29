@@ -1,0 +1,27 @@
+/**
+ * =============================================================
+ *  INTERFACE: FareCalculable
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Interface          : defines a contract any vehicle must follow
+ *  - Abstraction        : hides HOW fare is calculated; just says it MUST be
+ *  - Compile-time Polymorphism : two versions of calculateFare() (method overloading)
+ *
+ *  Any class that implements this interface MUST provide
+ *  concrete code for BOTH methods below.
+ * =============================================================
+ */
+public interface FareCalculable {
+
+    /**
+     * Calculate fare based on distance only.
+     */
+    double calculateFare(double distanceKm);
+
+    /**
+     * Overloaded version — includes a peak-hour flag.
+     * Same method name, different parameters = compile-time polymorphism.
+     */
+    double calculateFare(double distanceKm, boolean isPeakHour);
+}
