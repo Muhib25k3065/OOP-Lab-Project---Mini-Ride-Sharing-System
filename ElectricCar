@@ -1,0 +1,80 @@
+/**
+ * =============================================================
+ *  CLASS: ElectricCar
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Multilevel Inheritance  : ElectricCar → Car → Vehicle
+ *                              (3 levels deep)
+ *  - Runtime Polymorphism    : overrides calculateFare() with its own rate
+ *  - Final Constant          : BASE_RATE (cheaper than regular Car)
+ *
+ *  Chain: ElectricCar extends Car, which extends Vehicle.
+ *  ElectricCar inherits from BOTH Car and Vehicle automatically.
+ *
+ *  Fare is cheaper because electric cars have lower running costs.
+ * =============================================================
+ */
+public class ElectricCar extends Car {
+
+    // Cheaper rate than regular Car (PKR 50) — eco-friendly discount
+    public static final double BASE_RATE = 40.0; // PKR per km
+
+    // ── Extra field unique to ElectricCar ───────────────────────
+    private int batteryRangeKm; // how far it can go on a full charge
+
+    // ════════════════════════════════════════════════════════════
+    //  CONSTRUCTORS
+    // ════════════════════════════════════════════════════════════
+
+    /** Constructor 1: Default */
+    public ElectricCar() {
+        super();  // calls Car's default constructor
+        this.batteryRangeKm = 200;
+    }
+
+    /** Constructor 2: Parameterized */
+    public ElectricCar(String numberPlate, String model, String company,
+                       String color, boolean hasAC, int seatingCapacity,
+                       int batteryRangeKm) {
+        super(numberPlate, model, company, color, hasAC, seatingCapacity); // Car's constructor
+        this.batteryRangeKm = batteryRangeKm;
+    }
+
+    /** Constructor 3: Copy Constructor */
+    public ElectricCar(ElectricCar other) {
+        super(other);  // Car's copy constructor (which calls Vehicle's copy constructor)
+        this.batteryRangeKm = other.batteryRangeKm;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  OVERRIDE (Runtime Polymorphism — overrides Car's version)
+    // ════════════════════════════════════════════════════════════
+
+    @Override
+    public double calculateFare(double distanceKm) {
+        return BASE_RATE * distanceKm;   // uses 40 not 50
+    }
+
+    @Override
+    public double calculateFare(double distanceKm, boolean isPeakHour) {
+        double fare = BASE_RATE * distanceKm;
+        return isPeakHour ? fare * 1.20 : fare;  // +20% peak surcharge
+    }
+
+    @Override
+    public String getVehicleType() {
+        return "Electric Car";
+    }
+
+    @Override
+    public void displayInfo() {
+        super.displayInfo();  // prints Car's info (which prints Vehicle's info)
+        System.out.println("  Battery Range: " + batteryRangeKm + " km");
+        System.out.printf( "  Rate (Eco)   : PKR %.0f/km%n", BASE_RATE);
+    }
+
+    // ── Getters & Setters ────────────────────────────────────────
+    public int  getBatteryRangeKm()               { return batteryRangeKm;    }
+    public void setBatteryRangeKm(int rangeKm)    { this.batteryRangeKm = rangeKm; }
+}
