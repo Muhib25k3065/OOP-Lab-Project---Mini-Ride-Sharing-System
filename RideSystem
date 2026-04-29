@@ -1,0 +1,402 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+/**
+ * =============================================================
+ *  CLASS: RideSystem  (Application Controller)
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - ArrayList           : dynamic lists of drivers, passengers, rides
+ *  - Array of Objects    : Vehicle[] array (static-size array demo)
+ *  - Upcasting           : Vehicle ref = new Car(...) — widening
+ *  - Downcasting         : (Car) vehicleRef — narrowing with instanceof check
+ *  - Typecasting         : demonstrated in upcast/downcast section
+ *  - Generics in use     : RideRepository<Ride> and RideRepository<Driver>
+ *  - Exception Handling  : throws RideException for invalid inputs
+ *  - Polymorphism demo   : looping through Vehicle[] and calling calculateFare()
+ *
+ *  This class controls all the business logic of the system.
+ * =============================================================
+ */
+public class RideSystem {
+
+    // ── Data stores ──────────────────────────────────────────────
+    private ArrayList<Driver>    drivers;
+    private ArrayList<Passenger> passengers;
+
+    // Generic repositories — one for completed rides, one for active ones
+    private RideRepository<Ride>   completedRides;
+    private RideRepository<Driver> driverRepo;
+
+    // ── Constructor ──────────────────────────────────────────────
+    public RideSystem() {
+        drivers        = new ArrayList<>();
+        passengers     = new ArrayList<>();
+        completedRides = new RideRepository<>("Completed Rides");
+        driverRepo     = new RideRepository<>("Driver Registry");
+
+        loadSampleData();
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  SAMPLE DATA — pre-populated for demo purposes
+    // ════════════════════════════════════════════════════════════
+    private void loadSampleData() {
+
+        // ── Create vehicles ──────────────────────────────────────
+        Car        car1  = new Car       ("ABC-123", "Corolla",  "Toyota", "White",  true,  4);
+        Bike       bike1 = new Bike      ("XYZ-456", "CB150F",   "Honda",  "Black",  true     );
+        Rickshaw   rick1 = new Rickshaw  ("RCK-789", "Sazgar",   "Sazgar", "Yellow", 3        );
+        ElectricCar ec1  = new ElectricCar("ELC-001","Leaf",     "Nissan", "Blue",   true, 5, 300);
+        Car        car2  = new Car       ("DEF-321", "City",     "Honda",  "Red",    true,  4);
+
+        // ────────────────────────────────────────────────────────
+        //  UPCASTING  (Widening / Implicit Typecast)
+        //  A parent-class reference holds a child-class object.
+        //  vehicle2 is declared as Vehicle but holds a Car.
+        //  Safe — every Car IS a Vehicle.
+        // ────────────────────────────────────────────────────────
+        Vehicle vehicle2 = car2;   // UPCAST: Car → Vehicle
+        System.out.println("  [Upcast Demo] vehicle2.getVehicleType() = "
+                + vehicle2.getVehicleType());   // prints "Car"
+
+        // ────────────────────────────────────────────────────────
+        //  DOWNCASTING  (Narrowing / Explicit Typecast)
+        //  Cast the Vehicle reference BACK to Car to access Car-specific methods.
+        //  Always check with instanceof first to avoid ClassCastException!
+        // ────────────────────────────────────────────────────────
+        if (vehicle2 instanceof Car) {
+            Car castedCar = (Car) vehicle2;   // DOWNCAST: Vehicle → Car
+            System.out.println("  [Downcast Demo] castedCar.isHasAC() = "
+                    + castedCar.isHasAC());   // prints true
+        }
+
+        // ────────────────────────────────────────────────────────
+        //  ARRAY OF OBJECTS
+        //  Fixed-size array holding Vehicle objects (upcasted).
+        //  All 4 vehicles are stored as Vehicle references.
+        // ────────────────────────────────────────────────────────
+        Vehicle[] vehicleArray = { car1, bike1, rick1, ec1 };
+        System.out.println("  [Array Demo] " + vehicleArray.length
+                + " vehicles in fleet array.");
+
+        // ── Polymorphism through array — each calls its OWN calculateFare ──
+        System.out.println("  [Polymorphism Demo] Fare for 10 km (normal):");
+        for (Vehicle v : vehicleArray) {
+            // Runtime polymorphism: correct calculateFare() is called per type
+            System.out.printf("    %s: PKR %.2f%n", v.getVehicleType(), v.calculateFare(10));
+        }
+
+        // ── Create drivers and assign vehicles ───────────────────
+        Driver d1 = new Driver("Ahmed Khan",  30, "Male",   "0300-1234567", "DL-001", 5);
+        Driver d2 = new Driver("Ali Raza",    25, "Male",   "0301-7654321", "DL-002", 2);
+        Driver d3 = new Driver("Sara Malik",  28, "Female", "0302-1111222", "DL-003", 3);
+        Driver d4 = new Driver("Hassan Shah", 35, "Male",   "0303-9876543", "DL-004", 7);
+        Driver d5 = new Driver("Zara Noor",   26, "Female", "0304-5556666", "DL-005", 4);
+
+        d1.setVehicle(car1);
+        d2.setVehicle(bike1);
+        d3.setVehicle(rick1);
+        d4.setVehicle(ec1);
+        d5.setVehicle(car2);
+
+        // Pre-seed some ratings
+        d1.addRating(4.5); d1.addRating(5.0); d1.addRating(4.0);
+        d2.addRating(4.0); d2.addRating(3.5);
+        d3.addRating(4.8); d3.addRating(5.0);
+        d4.addRating(5.0); d4.addRating(4.7); d4.addRating(4.9);
+        d5.addRating(4.2);
+
+        drivers.add(d1); drivers.add(d2); drivers.add(d3);
+        drivers.add(d4); drivers.add(d5);
+
+        // Add to generic driver repository
+        for (Driver d : drivers) driverRepo.add(d);
+
+        // ── Create passengers ────────────────────────────────────
+        passengers.add(new Passenger("Fatima Zahra",  22, "Female", "0311-1234567", "Gulshan-e-Iqbal"));
+        passengers.add(new Passenger("Usman Tariq",   27, "Male",   "0312-9876543", "Defence"));
+        passengers.add(new Passenger("Ayesha Siddiq", 24, "Female", "0313-5554444", "Clifton"));
+
+        System.out.println("\n  System ready. " + drivers.size() + " drivers & "
+                + passengers.size() + " passengers loaded.\n");
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  BOOK A RIDE  (main user flow)
+    // ════════════════════════════════════════════════════════════
+    public void bookRide(Scanner sc) throws RideException {
+
+        // ── Step 1: Select passenger ─────────────────────────────
+        System.out.println("\n  ── Select Passenger ─────────────────────");
+        for (int i = 0; i < passengers.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + passengers.get(i).getName());
+        }
+        System.out.print("  Choice: ");
+        int pIdx = Integer.parseInt(sc.nextLine().trim()) - 1;
+
+        if (pIdx < 0 || pIdx >= passengers.size()) {
+            throw new RideException("Invalid passenger selection.", 101);
+        }
+        Passenger passenger = passengers.get(pIdx);
+
+        // ── Step 2: Ride details ─────────────────────────────────
+        System.out.print("  Pickup location : ");
+        String pickup = sc.nextLine();
+
+        System.out.print("  Destination     : ");
+        String destination = sc.nextLine();
+
+        System.out.print("  Distance (km)   : ");
+        double distance;
+        try {
+            distance = Double.parseDouble(sc.nextLine().trim());
+        } catch (NumberFormatException e) {
+            throw new RideException("Please enter a valid number for distance.", 102);
+        }
+        if (distance <= 0) {
+            throw new RideException("Distance must be greater than 0.", 103);
+        }
+
+        System.out.print("  Peak hour? (1=Yes / 0=No): ");
+        boolean peakHour = sc.nextLine().trim().equals("1");
+
+        // ── Step 3: Select vehicle type ──────────────────────────
+        System.out.println("\n  ── Vehicle Type ─────────────────────────");
+        System.out.println("  1. Car          (PKR 50/km)");
+        System.out.println("  2. Bike         (PKR 25/km)");
+        System.out.println("  3. Rickshaw     (PKR 30/km)");
+        System.out.println("  4. Electric Car (PKR 40/km)");
+        System.out.print("  Choice: ");
+
+        int vChoice;
+        try {
+            vChoice = Integer.parseInt(sc.nextLine().trim());
+        } catch (NumberFormatException e) {
+            throw new RideException("Invalid vehicle choice.", 104);
+        }
+
+        String vehicleType;
+        switch (vChoice) {
+            case 1:  vehicleType = "Car";          break;
+            case 2:  vehicleType = "Bike";         break;
+            case 3:  vehicleType = "Rickshaw";     break;
+            case 4:  vehicleType = "Electric Car"; break;
+            default: throw new RideException("Invalid vehicle type selected.", 105);
+        }
+
+        // ── Step 4: Find available drivers ───────────────────────
+        ArrayList<Driver> available = getAvailableDrivers(vehicleType);
+
+        if (available.isEmpty()) {
+            System.out.println("\n  No " + vehicleType + " drivers available right now.");
+            return;
+        }
+
+        System.out.println("\n  ── Available " + vehicleType + " Drivers ──────────────");
+        for (int i = 0; i < available.size(); i++) {
+            Driver d = available.get(i);
+            System.out.printf("  %d. %-15s | Rating: %.1f/5.0 | Exp: %d yrs | %s%n",
+                    i + 1, d.getName(), d.getAverageRating(),
+                    d.getYearsOfExperience(), d.getVehicle());
+        }
+
+        // ── Step 5: Passenger picks a driver ─────────────────────
+        System.out.print("  Select driver: ");
+        int dIdx;
+        try {
+            dIdx = Integer.parseInt(sc.nextLine().trim()) - 1;
+        } catch (NumberFormatException e) {
+            throw new RideException("Invalid driver selection.", 106);
+        }
+        if (dIdx < 0 || dIdx >= available.size()) {
+            throw new RideException("Invalid driver selection.", 107);
+        }
+
+        Driver selectedDriver = available.get(dIdx);
+
+        // Show passenger the ride + fare preview
+        passenger.requestRide(destination, vehicleType);
+        double previewFare = selectedDriver.getVehicle()
+                .calculateFare(distance, peakHour);
+        System.out.printf("  Estimated fare : PKR %.2f%s%n",
+                previewFare, peakHour ? " (peak hour surcharge applied)" : "");
+        System.out.print("  Confirm ride? (1=Yes / 0=No): ");
+        if (!sc.nextLine().trim().equals("1")) {
+            System.out.println("  Ride cancelled by passenger.");
+            return;
+        }
+
+        // ── Step 6: Create Ride object ────────────────────────────
+        Ride ride = new Ride(passenger, selectedDriver,
+                selectedDriver.getVehicle(),
+                pickup, destination, distance, peakHour);
+        ride.setStatus(Ride.RideStatus.ACCEPTED);
+        selectedDriver.setAvailable(false);
+
+        System.out.println("\n  Ride booked successfully!");
+        ride.displayRideInfo();
+
+        // ── Step 7: Payment ───────────────────────────────────────
+        System.out.println("\n  ── Payment Method ───────────────────────");
+        System.out.println("  1. Cash   2. Card   3. JazzCash   4. EasyPaisa");
+        System.out.print("  Choice: ");
+        int pmChoice;
+        try {
+            pmChoice = Integer.parseInt(sc.nextLine().trim());
+        } catch (NumberFormatException e) {
+            pmChoice = 1; // default to cash
+        }
+
+        Payment.PaymentMethod pm;
+        switch (pmChoice) {
+            case 2: pm = Payment.PaymentMethod.CARD;       break;
+            case 3: pm = Payment.PaymentMethod.JAZZCASH;   break;
+            case 4: pm = Payment.PaymentMethod.EASYPAISA;  break;
+            default: pm = Payment.PaymentMethod.CASH;
+        }
+
+        Payment payment = new Payment(ride, pm);
+        payment.processPayment();
+
+        // ── Step 8: Complete ride ─────────────────────────────────
+        ride.completeRide();
+
+        // ── Step 9: Rate the driver ───────────────────────────────
+        System.out.print("\n  Rate your driver (1-5, or 0 to skip): ");
+        try {
+            double rating = Double.parseDouble(sc.nextLine().trim());
+            if (rating > 0) {
+                selectedDriver.addRating(rating);
+                System.out.printf("  Driver rated %.1f. New avg: %.2f%n",
+                        rating, selectedDriver.getAverageRating());
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("  Skipped rating.");
+        }
+
+        // ── Step 10: Save to session repo + file ─────────────────
+        completedRides.add(ride);
+        RideHistory.saveRide(ride);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  HELPER: find available drivers by vehicle type
+    // ════════════════════════════════════════════════════════════
+    public ArrayList<Driver> getAvailableDrivers(String vehicleType) {
+        ArrayList<Driver> list = new ArrayList<>();
+        for (Driver d : drivers) {
+            if (d.isAvailable()
+                    && d.getVehicle() != null
+                    && d.getVehicle().getVehicleType().equalsIgnoreCase(vehicleType)) {
+                list.add(d);
+            }
+        }
+        return list;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  ADD NEW PASSENGER
+    // ════════════════════════════════════════════════════════════
+    public void addNewPassenger(Scanner sc) {
+        System.out.println("\n  ── Add New Passenger ─────────────────────");
+        System.out.print("  Name        : "); String name    = sc.nextLine();
+        System.out.print("  Age         : ");
+        int age = 0;
+        try { age = Integer.parseInt(sc.nextLine().trim()); }
+        catch (NumberFormatException e) { System.out.println("  Invalid age, set to 0."); }
+        System.out.print("  Gender      : "); String gender  = sc.nextLine();
+        System.out.print("  Phone       : "); String phone   = sc.nextLine();
+        System.out.print("  Home Address: "); String address = sc.nextLine();
+
+        Passenger p = new Passenger(name, age, gender, phone, address);
+        passengers.add(p);
+        System.out.println("  Passenger '" + name + "' added successfully!");
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  ADD NEW DRIVER
+    // ════════════════════════════════════════════════════════════
+    public void addNewDriver(Scanner sc) {
+        System.out.println("\n  ── Add New Driver ────────────────────────");
+        System.out.print("  Name              : "); String name  = sc.nextLine();
+        System.out.print("  Age               : ");
+        int age = 0;
+        try { age = Integer.parseInt(sc.nextLine().trim()); }
+        catch (NumberFormatException e) { System.out.println("  Invalid age."); }
+        System.out.print("  Gender            : "); String gender  = sc.nextLine();
+        System.out.print("  Phone             : "); String phone   = sc.nextLine();
+        System.out.print("  License Number    : "); String license = sc.nextLine();
+        System.out.print("  Years Experience  : ");
+        int exp = 0;
+        try { exp = Integer.parseInt(sc.nextLine().trim()); }
+        catch (NumberFormatException e) { System.out.println("  Invalid experience."); }
+
+        // Select vehicle type for driver
+        System.out.println("  Vehicle Type:");
+        System.out.println("  1. Car  2. Bike  3. Rickshaw  4. Electric Car");
+        System.out.print("  Choice: ");
+        int vChoice = 1;
+        try { vChoice = Integer.parseInt(sc.nextLine().trim()); }
+        catch (NumberFormatException e) { /* default */ }
+
+        System.out.print("  Number Plate : "); String plate   = sc.nextLine();
+        System.out.print("  Model        : "); String model   = sc.nextLine();
+        System.out.print("  Company      : "); String company = sc.nextLine();
+        System.out.print("  Color        : "); String color   = sc.nextLine();
+
+        Vehicle vehicle;
+        switch (vChoice) {
+            case 2:  vehicle = new Bike      (plate, model, company, color, true);      break;
+            case 3:  vehicle = new Rickshaw  (plate, model, company, color, 3);          break;
+            case 4:  vehicle = new ElectricCar(plate, model, company, color, true, 5, 200); break;
+            default: vehicle = new Car       (plate, model, company, color, true, 4);   break;
+        }
+
+        Driver d = new Driver(name, age, gender, phone, license, exp);
+        d.setVehicle(vehicle);
+        drivers.add(d);
+        driverRepo.add(d);
+        System.out.println("  Driver '" + name + "' added successfully!");
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  DISPLAY METHODS
+    // ════════════════════════════════════════════════════════════
+
+    public void displayAllDrivers() {
+        System.out.println("\n  ══ All Registered Drivers ════════════════");
+        for (Driver d : drivers) {
+            d.displayInfo();
+            System.out.println();
+        }
+    }
+
+    public void displayAllPassengers() {
+        System.out.println("\n  ══ All Registered Passengers ═════════════");
+        for (Passenger p : passengers) {
+            p.displayInfo();
+            System.out.println();
+        }
+    }
+
+    public void displayCompletedRides() {
+        System.out.println("\n  ══ Completed Rides (this session) ════════");
+        completedRides.displayAll();
+    }
+
+    public void displayStats() {
+        System.out.println("\n  ══ System Statistics ══════════════════════");
+        System.out.println("  Total Users created   : " + User.getTotalUsers());
+        System.out.println("  Total Vehicles created: " + Vehicle.getTotalVehicles());
+        System.out.println("  Total Rides created   : " + Ride.getTotalRides());
+        System.out.println("  Registered Drivers    : " + drivers.size());
+        System.out.println("  Registered Passengers : " + passengers.size());
+        System.out.println("  Rides completed today : " + completedRides.size());
+    }
+
+    // ── Accessors ────────────────────────────────────────────────
+    public ArrayList<Driver>    getDrivers()    { return drivers;    }
+    public ArrayList<Passenger> getPassengers() { return passengers; }
+}
