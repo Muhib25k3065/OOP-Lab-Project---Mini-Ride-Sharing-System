@@ -1,0 +1,205 @@
+import java.util.Scanner;
+
+/**
+ * =============================================================
+ *  CLASS: Main  (Entry Point)
+ * =============================================================
+ *
+ *  This is where the program starts. It creates a RideSystem
+ *  and runs a text-based menu loop for the user.
+ *
+ *  OOP CONCEPTS DEMONSTRATED HERE:
+ *  - Exception Handling  : try-catch around bookRide (catches RideException)
+ *  - Object Creation     : instantiates the RideSystem
+ *  - Polymorphism demo   : see the OOP concept quick-demo in the menu
+ * =============================================================
+ */
+public class Main {
+
+    public static void main(String[] args) {
+
+        printBanner();
+
+        // Creating the system also runs the upcast/downcast/array demo
+        RideSystem system = new RideSystem();
+
+        Scanner sc = new Scanner(System.in);
+        boolean running = true;
+
+        while (running) {
+            printMenu();
+            System.out.print("  Enter choice: ");
+
+            String input = sc.nextLine().trim();
+            int choice;
+            try {
+                choice = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("  [!] Please enter a number.");
+                continue;
+            }
+
+            System.out.println();
+
+            switch (choice) {
+
+                case 1:
+                    // ── Book a ride — may throw RideException ────
+                    try {
+                        system.bookRide(sc);
+                    } catch (RideException e) {
+                        System.out.println("  [Ride Error " + e.getErrorCode() + "] "
+                                + e.getMessage());
+                    }
+                    break;
+
+                case 2:
+                    system.displayAllDrivers();
+                    break;
+
+                case 3:
+                    system.displayAllPassengers();
+                    break;
+
+                case 4:
+                    system.displayCompletedRides();
+                    break;
+
+                case 5:
+                    // Reads from ride_history.txt file
+                    RideHistory.displayHistory();
+                    break;
+
+                case 6:
+                    system.addNewPassenger(sc);
+                    break;
+
+                case 7:
+                    system.addNewDriver(sc);
+                    break;
+
+                case 8:
+                    system.displayStats();
+                    break;
+
+                case 9:
+                    // ── OOP Quick Demo ───────────────────────────
+                    runOOPDemo();
+                    break;
+
+                case 0:
+                    running = false;
+                    System.out.println("  Thank you for using the Mini Ride Sharing System!");
+                    System.out.println("  Goodbye!\n");
+                    break;
+
+                default:
+                    System.out.println("  [!] Invalid choice. Please try again.");
+            }
+        }
+
+        sc.close();
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  OOP CONCEPT QUICK DEMO
+    //  A standalone demonstration of key OOP concepts for viva prep.
+    // ════════════════════════════════════════════════════════════
+    private static void runOOPDemo() {
+        System.out.println("\n  ══ OOP Concepts Quick Demo ════════════════");
+
+        // ── 1. Polymorphism (Runtime) ────────────────────────────
+        System.out.println("\n  [1] Runtime Polymorphism (Method Overriding):");
+        Vehicle[] fleet = {
+                new Car      ("T1", "Corolla", "Toyota", "White", true, 4),
+                new Bike     ("T2", "CD70",    "Honda",  "Red",   false),
+                new Rickshaw ("T3", "Sazgar",  "Sazgar", "Yellow", 3),
+                new ElectricCar("T4","Leaf",   "Nissan", "Blue", true, 5, 250)
+        };
+        for (Vehicle v : fleet) {
+            // Same call — different output depending on ACTUAL object type
+            System.out.printf("  %-14s calculateFare(10 km) = PKR %.2f%n",
+                    v.getVehicleType(), v.calculateFare(10));
+        }
+
+        // ── 2. Polymorphism (Compile-time via overloading) ───────
+        System.out.println("\n  [2] Compile-time Polymorphism (Method Overloading):");
+        Car car = new Car("T5", "Civic", "Honda", "Silver", true, 4);
+        System.out.printf("  calculateFare(10)           = PKR %.2f%n", car.calculateFare(10));
+        System.out.printf("  calculateFare(10, peakHour) = PKR %.2f%n", car.calculateFare(10, true));
+
+        // ── 3. Upcast & Downcast ─────────────────────────────────
+        System.out.println("\n  [3] Upcasting & Downcasting:");
+        Vehicle vRef = new ElectricCar("T6","Model3","Tesla","Black",true,5,400); // UPCAST
+        System.out.println("  vRef type after upcast      : " + vRef.getVehicleType());
+        if (vRef instanceof ElectricCar) {
+            ElectricCar ec = (ElectricCar) vRef;  // DOWNCAST
+            System.out.println("  After downcast, batteryRange: " + ec.getBatteryRangeKm() + " km");
+        }
+
+        // ── 4. Multilevel Inheritance chain ──────────────────────
+        System.out.println("\n  [4] Multilevel Inheritance (ElectricCar→Car→Vehicle):");
+        ElectricCar ec2 = new ElectricCar("T7","iX","BMW","White",true,5,500);
+        System.out.println("  getVehicleType() (Vehicle level): " + ec2.getVehicleType());
+        System.out.println("  isHasAC()        (Car level)    : " + ec2.isHasAC());
+        System.out.println("  getBatteryRange  (ElecCar level): " + ec2.getBatteryRangeKm() + " km");
+
+        // ── 5. Deep Copy vs Shallow Copy ─────────────────────────
+        System.out.println("\n  [5] Deep Copy vs Shallow Copy:");
+        Driver original = new Driver("Test Driver", 30, "Male", "0300-0000000", "DL-TEST", 3);
+        original.addRating(4.0);
+        original.addRating(5.0);
+
+        Driver copied = new Driver(original);  // copy constructor
+        copied.addRating(3.0);   // only added to copy's list (deep copy)
+
+        System.out.println("  Original ratings count : " + original.getRatings().size()); // 2
+        System.out.println("  Copy ratings count     : " + copied.getRatings().size());   // 3
+        System.out.println("  (Proves ratings list is DEEP copied — independent lists)");
+
+        // Vehicle reference is SHALLOW copied — same object in memory
+        Car sharedCar = new Car("SH-001","Shared","Test","Green",false,4);
+        original.setVehicle(sharedCar);
+        Driver shallowCopied = new Driver(original);
+        sharedCar.setColor("Purple");  // change via original's vehicle
+        System.out.println("  Shallow copy vehicle color: "
+                + shallowCopied.getVehicle().getColor()); // shows Purple!
+        System.out.println("  (Proves vehicle is SHALLOW copied — same reference)");
+
+        // ── 6. Generic class ─────────────────────────────────────
+        System.out.println("\n  [6] Generics (RideRepository<T>):");
+        RideRepository<String> strRepo = new RideRepository<>("String Test");
+        strRepo.add("Hello");
+        strRepo.add("World");
+        strRepo.displayAll();  // works with Strings — same class, different type
+
+        System.out.println("\n  ══ Demo Complete ══════════════════════════\n");
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  UI HELPERS
+    // ════════════════════════════════════════════════════════════
+    private static void printBanner() {
+        System.out.println();
+        System.out.println("  ╔══════════════════════════════════════════╗");
+        System.out.println("  ║    MINI RIDE SHARING SYSTEM — JAVA OOP  ║");
+        System.out.println("  ║         CS Course Project  2024         ║");
+        System.out.println("  ╚══════════════════════════════════════════╝");
+        System.out.println();
+    }
+
+    private static void printMenu() {
+        System.out.println("  ──────────────────────────────────────────");
+        System.out.println("  1. Book a Ride");
+        System.out.println("  2. View All Drivers");
+        System.out.println("  3. View All Passengers");
+        System.out.println("  4. View Completed Rides (this session)");
+        System.out.println("  5. View Ride History (from file)");
+        System.out.println("  6. Register New Passenger");
+        System.out.println("  7. Register New Driver");
+        System.out.println("  8. System Statistics");
+        System.out.println("  9. OOP Concepts Demo");
+        System.out.println("  0. Exit");
+        System.out.println("  ──────────────────────────────────────────");
+    }
+}
