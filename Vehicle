@@ -1,0 +1,116 @@
+/**
+ * =============================================================
+ *  ABSTRACT CLASS: Vehicle
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Abstraction       : abstract class + abstract method getVehicleType()
+ *  - Interface Impl.   : implements FareCalculable (contract for fare)
+ *  - Encapsulation     : private fields with getters/setters
+ *  - Static Members    : totalVehicles counter
+ *  - Final Constant    : DEFAULT_BASE_RATE (a constant value)
+ *  - Constructors      : default, parameterized, copy
+ *  - Destructor        : finalize() (educational, deprecated in Java 9+)
+ *
+ *  Hierarchy:
+ *      Vehicle (abstract)
+ *      ├── Car
+ *      ├── Bike
+ *      ├── Rickshaw
+ *      └── ElectricCar  (extends Car — multilevel)
+ * =============================================================
+ */
+public abstract class Vehicle implements FareCalculable {
+
+    // ── Private fields (Encapsulation) ──────────────────────────
+    private String numberPlate;
+    private String model;
+    private String company;
+    private String color;
+
+    // ── Static counter (shared across ALL Vehicle objects) ──────
+    private static int totalVehicles = 0;
+
+    // ── Final constant (cannot be changed after declaration) ────
+    // Subclasses define their own BASE_RATE; this is the fallback.
+    protected static final double DEFAULT_BASE_RATE = 20.0;
+
+    // ════════════════════════════════════════════════════════════
+    //  CONSTRUCTORS
+    // ════════════════════════════════════════════════════════════
+
+    /** Constructor 1: Default */
+    public Vehicle() {
+        this.numberPlate = "N/A";
+        this.model       = "Unknown";
+        this.company     = "Unknown";
+        this.color       = "Unknown";
+        totalVehicles++;
+    }
+
+    /** Constructor 2: Parameterized */
+    public Vehicle(String numberPlate, String model, String company, String color) {
+        this.numberPlate = numberPlate;
+        this.model       = model;
+        this.company     = company;
+        this.color       = color;
+        totalVehicles++;
+    }
+
+    /** Constructor 3: Copy Constructor */
+    public Vehicle(Vehicle other) {
+        this.numberPlate = other.numberPlate;
+        this.model       = other.model;
+        this.company     = other.company;
+        this.color       = other.color;
+        totalVehicles++;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  ABSTRACT METHODS — subclasses MUST implement these
+    // ════════════════════════════════════════════════════════════
+
+    /** Returns a string like "Car", "Bike", "Rickshaw", "Electric Car" */
+    public abstract String getVehicleType();
+
+    // Note: calculateFare() from FareCalculable is also abstract here
+    // because Vehicle doesn't know its own rate — subclasses do.
+
+    // ════════════════════════════════════════════════════════════
+    //  CONCRETE METHODS
+    // ════════════════════════════════════════════════════════════
+
+    /** Display basic vehicle information (can be extended by subclasses). */
+    public void displayInfo() {
+        System.out.println("  Vehicle Type : " + getVehicleType());
+        System.out.println("  Model        : " + model + " (" + company + ")");
+        System.out.println("  Color        : " + color);
+        System.out.println("  Number Plate : " + numberPlate);
+    }
+
+    // ── Static accessor ─────────────────────────────────────────
+    public static int getTotalVehicles() {
+        return totalVehicles;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  GETTERS & SETTERS (Encapsulation)
+    // ════════════════════════════════════════════════════════════
+
+    public String getNumberPlate()                         { return numberPlate;  }
+    public void   setNumberPlate(String plate)             { this.numberPlate = plate; }
+
+    public String getModel()                               { return model;        }
+    public void   setModel(String model)                   { this.model = model;  }
+
+    public String getCompany()                             { return company;      }
+    public void   setCompany(String company)               { this.company = company; }
+
+    public String getColor()                               { return color;        }
+    public void   setColor(String color)                   { this.color = color;  }
+
+    @Override
+    public String toString() {
+        return getVehicleType() + " | " + model + " (" + company + ") | " + numberPlate;
+    }
+}
