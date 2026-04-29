@@ -1,0 +1,83 @@
+import java.util.ArrayList;
+
+/**
+ * =============================================================
+ *  CLASS: RideRepository<T>  — Generic Repository
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Generics : <T> means this class works with ANY type.
+ *               RideRepository<Ride>   stores Ride objects.
+ *               RideRepository<Driver> stores Driver objects.
+ *               One class, infinite reuse!
+ *
+ *  Think of T as a "placeholder" for the actual type you provide.
+ *  Java replaces T with the real type at compile time.
+ *
+ *  Example usage:
+ *      RideRepository<Ride>   rideRepo   = new RideRepository<>("Rides");
+ *      RideRepository<Driver> driverRepo = new RideRepository<>("Drivers");
+ * =============================================================
+ */
+public class RideRepository<T> {
+
+    private ArrayList<T> items;       // holds objects of type T
+    private String       repoName;    // label for display purposes
+
+    // ── Constructor ──────────────────────────────────────────────
+    public RideRepository(String repoName) {
+        this.items    = new ArrayList<>();
+        this.repoName = repoName;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  METHODS — all work with type T generically
+    // ════════════════════════════════════════════════════════════
+
+    /** Add an item of type T. */
+    public void add(T item) {
+        items.add(item);
+    }
+
+    /** Get item at index. Returns null if index is invalid. */
+    public T get(int index) {
+        if (index < 0 || index >= items.size()) {
+            System.out.println("  [!] Invalid index: " + index);
+            return null;
+        }
+        return items.get(index);
+    }
+
+    /** Remove item at index. */
+    public void remove(int index) {
+        if (index < 0 || index >= items.size()) {
+            System.out.println("  [!] Invalid index.");
+            return;
+        }
+        items.remove(index);
+    }
+
+    /** Return all items as an ArrayList. */
+    public ArrayList<T> getAll() {
+        return items;
+    }
+
+    /** Number of items stored. */
+    public int size() {
+        return items.size();
+    }
+
+    /** Print all items using their toString() method. */
+    public void displayAll() {
+        if (items.isEmpty()) {
+            System.out.println("  " + repoName + " is empty.");
+            return;
+        }
+        System.out.println("  ── " + repoName + " (" + items.size() + " records) ──");
+        for (int i = 0; i < items.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + items.get(i).toString());
+        }
+    }
+
+    public String getRepoName() { return repoName; }
+}
