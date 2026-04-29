@@ -1,0 +1,37 @@
+/**
+ * =============================================================
+ *  CLASS: RideException (Custom Exception)
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Exception Handling  : custom checked exception
+ *  - Inheritance         : extends the built-in Exception class
+ *  - Constructors        : default + parameterized constructors
+ *
+ *  This exception is thrown whenever something goes wrong
+ *  during ride booking (e.g., invalid input, no drivers found).
+ *  We attach an error code so the caller knows WHAT went wrong.
+ * =============================================================
+ */
+public class RideException extends Exception {
+
+    // Error code to identify the type of problem
+    private int errorCode;
+
+    // ── Constructor 1: just a message ──────────────────────────
+    public RideException(String message) {
+        super(message);      // passes message to parent (Exception)
+        this.errorCode = 0;
+    }
+
+    // ── Constructor 2: message + error code ────────────────────
+    public RideException(String message, int errorCode) {
+        super(message);
+        this.errorCode = errorCode;
+    }
+
+    // ── Getter ──────────────────────────────────────────────────
+    public int getErrorCode() {
+        return errorCode;
+    }
+}
