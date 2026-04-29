@@ -1,0 +1,71 @@
+/**
+ * =============================================================
+ *  CLASS: Bike
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Hierarchical Inheritance : extends Vehicle (like Car and Rickshaw)
+ *  - Runtime Polymorphism     : overrides calculateFare()
+ *  - Final Constant           : BASE_RATE
+ * =============================================================
+ */
+public class Bike extends Vehicle {
+
+    public static final double BASE_RATE = 25.0; // PKR per km
+
+    private boolean hasHelmet;
+
+    // ════════════════════════════════════════════════════════════
+    //  CONSTRUCTORS
+    // ════════════════════════════════════════════════════════════
+
+    /** Constructor 1: Default */
+    public Bike() {
+        super();
+        this.hasHelmet = false;
+    }
+
+    /** Constructor 2: Parameterized */
+    public Bike(String numberPlate, String model, String company,
+                String color, boolean hasHelmet) {
+        super(numberPlate, model, company, color);
+        this.hasHelmet = hasHelmet;
+    }
+
+    /** Constructor 3: Copy Constructor */
+    public Bike(Bike other) {
+        super(other);
+        this.hasHelmet = other.hasHelmet;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  INTERFACE IMPLEMENTATION (Runtime Polymorphism)
+    // ════════════════════════════════════════════════════════════
+
+    @Override
+    public double calculateFare(double distanceKm) {
+        return BASE_RATE * distanceKm;
+    }
+
+    @Override
+    public double calculateFare(double distanceKm, boolean isPeakHour) {
+        double fare = BASE_RATE * distanceKm;
+        return isPeakHour ? fare * 1.20 : fare;  // +20% during peak hours
+    }
+
+    @Override
+    public String getVehicleType() {
+        return "Bike";
+    }
+
+    @Override
+    public void displayInfo() {
+        super.displayInfo();
+        System.out.println("  Helmet Given : " + (hasHelmet ? "Yes" : "No"));
+        System.out.printf( "  Rate         : PKR %.0f/km%n", BASE_RATE);
+    }
+
+    // ── Getters & Setters ────────────────────────────────────────
+    public boolean isHasHelmet()                    { return hasHelmet;          }
+    public void    setHasHelmet(boolean hasHelmet)  { this.hasHelmet = hasHelmet; }
+}
