@@ -1,0 +1,141 @@
+import java.util.ArrayList;
+
+/**
+ * =============================================================
+ *  CLASS: Driver
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Single Inheritance          : Driver extends User
+ *  - Multiple Interface Usage    : also implements Rateable
+ *  - Encapsulation               : private fields + getters/setters
+ *  - Composition                 : Driver HAS-A Vehicle (strong ownership)
+ *  - Deep vs Shallow Copy        : explained in copy constructor
+ *  - Constructors (3 types)      : default, parameterized, copy
+ *
+ *  A Driver is a User who owns a vehicle and can accept rides.
+ *  Passengers can rate drivers after completing a ride.
+ * =============================================================
+ */
+public class Driver extends User implements Rateable {
+
+    // ── Private fields (Encapsulation) ──────────────────────────
+    private String  licenseNumber;
+    private int     yearsOfExperience;
+    private Vehicle vehicle;       // Composition: Driver owns a Vehicle
+    private boolean isAvailable;
+    private ArrayList<Double> ratings; // stores all ratings given by passengers
+
+    // ════════════════════════════════════════════════════════════
+    //  CONSTRUCTORS
+    // ════════════════════════════════════════════════════════════
+
+    /** Constructor 1: Default */
+    public Driver() {
+        super();  // calls User's default constructor
+        this.licenseNumber      = "N/A";
+        this.yearsOfExperience  = 0;
+        this.isAvailable        = true;
+        this.ratings            = new ArrayList<>();
+    }
+
+    /** Constructor 2: Parameterized */
+    public Driver(String name, int age, String gender, String phone,
+                  String licenseNumber, int yearsOfExperience) {
+        super(name, age, gender, phone);  // call parent constructor
+        this.licenseNumber      = licenseNumber;
+        this.yearsOfExperience  = yearsOfExperience;
+        this.isAvailable        = true;
+        this.ratings            = new ArrayList<>();
+    }
+
+    /**
+     * Constructor 3: Copy Constructor
+     *
+     * ── DEEP COPY vs SHALLOW COPY EXPLAINED ──────────────────
+     *
+     * SHALLOW COPY (vehicle field):
+     *   this.vehicle = other.vehicle;
+     *   Both original and copy point to the SAME vehicle object in memory.
+     *   If one changes the vehicle's color, the other sees it too.
+     *   → Use when the object is shared and you don't want two copies.
+     *
+     * DEEP COPY (ratings list):
+     *   this.ratings = new ArrayList<>(other.ratings);
+     *   Creates a BRAND NEW list with the same values.
+     *   If original adds a new rating, the copy's list is NOT affected.
+     *   → Use when you want complete independence between original and copy.
+     * ─────────────────────────────────────────────────────────
+     */
+    public Driver(Driver other) {
+        super(other);  // copy constructor of parent class
+
+        this.licenseNumber     = other.licenseNumber;
+        this.yearsOfExperience = other.yearsOfExperience;
+        this.isAvailable       = other.isAvailable;
+
+        // SHALLOW COPY — both drivers share the same vehicle object
+        this.vehicle = other.vehicle;
+
+        // DEEP COPY — each driver has its own independent ratings list
+        this.ratings = new ArrayList<>(other.ratings);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  INTERFACE IMPLEMENTATION: Rateable
+    // ════════════════════════════════════════════════════════════
+
+    @Override
+    public void addRating(double rating) {
+        if (rating < 1.0 || rating > 5.0) {
+            System.out.println("  [!] Rating must be between 1.0 and 5.0. Ignored.");
+            return;
+        }
+        ratings.add(rating);
+    }
+
+    @Override
+    public double getAverageRating() {
+        if (ratings.isEmpty()) return 0.0;
+        double sum = 0;
+        for (double r : ratings) sum += r;
+        return sum / ratings.size();
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  OVERRIDE abstract method from User
+    // ════════════════════════════════════════════════════════════
+
+    @Override
+    public void displayInfo() {
+        System.out.println("  ┌─── DRIVER INFO ──────────────────────────");
+        System.out.println("  │ " + super.toString());
+        System.out.println("  │ License No    : " + licenseNumber);
+        System.out.println("  │ Experience    : " + yearsOfExperience + " years");
+        System.out.println("  │ Available     : " + (isAvailable ? "Yes" : "No (On Ride)"));
+        System.out.printf( "  │ Avg Rating    : %.1f / 5.0 (%d ratings)%n",
+                getAverageRating(), ratings.size());
+        if (vehicle != null) {
+            System.out.println("  │ Vehicle       : " + vehicle);
+        }
+        System.out.println("  └─────────────────────────────────────────");
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  GETTERS & SETTERS (Encapsulation)
+    // ════════════════════════════════════════════════════════════
+
+    public String  getLicenseNumber()                        { return licenseNumber;      }
+    public void    setLicenseNumber(String licenseNumber)    { this.licenseNumber = licenseNumber; }
+
+    public int     getYearsOfExperience()                    { return yearsOfExperience;  }
+    public void    setYearsOfExperience(int yrs)             { this.yearsOfExperience = yrs; }
+
+    public Vehicle getVehicle()                              { return vehicle;            }
+    public void    setVehicle(Vehicle vehicle)               { this.vehicle = vehicle;    }
+
+    public boolean isAvailable()                             { return isAvailable;        }
+    public void    setAvailable(boolean available)           { this.isAvailable = available; }
+
+    public ArrayList<Double> getRatings()                    { return ratings;            }
+}
