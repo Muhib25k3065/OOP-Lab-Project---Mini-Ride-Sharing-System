@@ -1,0 +1,71 @@
+/**
+ * =============================================================
+ *  CLASS: Rickshaw
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Hierarchical Inheritance : extends Vehicle (like Car and Bike)
+ *  - Runtime Polymorphism     : overrides calculateFare()
+ *  - Final Constant           : BASE_RATE
+ * =============================================================
+ */
+public class Rickshaw extends Vehicle {
+
+    public static final double BASE_RATE = 30.0; // PKR per km
+
+    private int passengerCapacity;
+
+    // ════════════════════════════════════════════════════════════
+    //  CONSTRUCTORS
+    // ════════════════════════════════════════════════════════════
+
+    /** Constructor 1: Default */
+    public Rickshaw() {
+        super();
+        this.passengerCapacity = 3;
+    }
+
+    /** Constructor 2: Parameterized */
+    public Rickshaw(String numberPlate, String model, String company,
+                    String color, int passengerCapacity) {
+        super(numberPlate, model, company, color);
+        this.passengerCapacity = passengerCapacity;
+    }
+
+    /** Constructor 3: Copy Constructor */
+    public Rickshaw(Rickshaw other) {
+        super(other);
+        this.passengerCapacity = other.passengerCapacity;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  INTERFACE IMPLEMENTATION (Runtime Polymorphism)
+    // ════════════════════════════════════════════════════════════
+
+    @Override
+    public double calculateFare(double distanceKm) {
+        return BASE_RATE * distanceKm;
+    }
+
+    @Override
+    public double calculateFare(double distanceKm, boolean isPeakHour) {
+        double fare = BASE_RATE * distanceKm;
+        return isPeakHour ? fare * 1.15 : fare;  // +15% during peak hours
+    }
+
+    @Override
+    public String getVehicleType() {
+        return "Rickshaw";
+    }
+
+    @Override
+    public void displayInfo() {
+        super.displayInfo();
+        System.out.println("  Capacity     : " + passengerCapacity + " passengers");
+        System.out.printf( "  Rate         : PKR %.0f/km%n", BASE_RATE);
+    }
+
+    // ── Getters & Setters ────────────────────────────────────────
+    public int  getPassengerCapacity()              { return passengerCapacity; }
+    public void setPassengerCapacity(int capacity)  { this.passengerCapacity = capacity; }
+}
