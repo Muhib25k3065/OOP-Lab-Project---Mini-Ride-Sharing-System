@@ -1,0 +1,87 @@
+/**
+ * =============================================================
+ *  CLASS: Car
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Hierarchical Inheritance  : Car, Bike, Rickshaw all extend Vehicle
+ *  - Runtime Polymorphism      : overrides calculateFare() from interface
+ *  - Final Constant            : BASE_RATE (fixed rate per km)
+ *  - Encapsulation             : private fields + getters/setters
+ *  - Constructors              : default, parameterized, copy
+ * =============================================================
+ */
+public class Car extends Vehicle {
+
+    // ── Final constant: fare per km (cannot be changed) ─────────
+    public static final double BASE_RATE = 50.0; // PKR per km
+
+    // ── Private fields ───────────────────────────────────────────
+    private boolean hasAC;
+    private int     seatingCapacity;
+
+    // ════════════════════════════════════════════════════════════
+    //  CONSTRUCTORS
+    // ════════════════════════════════════════════════════════════
+
+    /** Constructor 1: Default */
+    public Car() {
+        super();  // Vehicle default constructor
+        this.hasAC          = false;
+        this.seatingCapacity = 4;
+    }
+
+    /** Constructor 2: Parameterized */
+    public Car(String numberPlate, String model, String company,
+               String color, boolean hasAC, int seatingCapacity) {
+        super(numberPlate, model, company, color);
+        this.hasAC          = hasAC;
+        this.seatingCapacity = seatingCapacity;
+    }
+
+    /** Constructor 3: Copy Constructor */
+    public Car(Car other) {
+        super(other);  // copies numberPlate, model, company, color
+        this.hasAC          = other.hasAC;
+        this.seatingCapacity = other.seatingCapacity;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  INTERFACE IMPLEMENTATION — Runtime Polymorphism
+    //  These override the abstract methods declared in FareCalculable.
+    //  At runtime, Java decides WHICH calculateFare() to call based on
+    //  the ACTUAL object type, not the reference type.
+    // ════════════════════════════════════════════════════════════
+
+    @Override
+    public double calculateFare(double distanceKm) {
+        return BASE_RATE * distanceKm;
+    }
+
+    @Override
+    public double calculateFare(double distanceKm, boolean isPeakHour) {
+        double fare = BASE_RATE * distanceKm;
+        return isPeakHour ? fare * 1.30 : fare;  // +30% during peak hours
+    }
+
+    // ── Abstract method from Vehicle ────────────────────────────
+    @Override
+    public String getVehicleType() {
+        return "Car";
+    }
+
+    // ── Display ──────────────────────────────────────────────────
+    @Override
+    public void displayInfo() {
+        super.displayInfo();
+        System.out.println("  AC           : " + (hasAC ? "Yes" : "No"));
+        System.out.println("  Seats        : " + seatingCapacity);
+        System.out.printf( "  Rate         : PKR %.0f/km%n", BASE_RATE);
+    }
+
+    // ── Getters & Setters ────────────────────────────────────────
+    public boolean isHasAC()                     { return hasAC;           }
+    public void    setHasAC(boolean hasAC)        { this.hasAC = hasAC;     }
+    public int     getSeatingCapacity()           { return seatingCapacity; }
+    public void    setSeatingCapacity(int seats)  { this.seatingCapacity = seats; }
+}
