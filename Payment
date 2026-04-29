@@ -1,0 +1,96 @@
+/**
+ * =============================================================
+ *  CLASS: Payment
+ * =============================================================
+ *
+ *  OOP CONCEPTS DEMONSTRATED:
+ *  - Aggregation        : Payment references a Ride (but Ride exists independently)
+ *  - Enum               : PaymentMethod — fixed set of payment options
+ *  - Static Members     : paymentCounter for unique IDs
+ *  - Encapsulation      : private fields + getters
+ *  - Constructors       : default, parameterized, copy
+ * =============================================================
+ */
+public class Payment {
+
+    // ════════════════════════════════════════════════════════════
+    //  ENUM — Payment options available in Pakistan's context
+    // ════════════════════════════════════════════════════════════
+    public enum PaymentMethod {
+        CASH,
+        CARD,
+        JAZZCASH,
+        EASYPAISA
+    }
+
+    // ── Static counter for unique payment IDs ───────────────────
+    private static int paymentCounter = 0;
+
+    // ── Fields ───────────────────────────────────────────────────
+    private int           paymentId;
+    private Ride          ride;      // Aggregation — Payment is linked to a Ride
+    private double        amount;
+    private PaymentMethod method;
+    private boolean       isPaid;
+
+    // ════════════════════════════════════════════════════════════
+    //  CONSTRUCTORS
+    // ════════════════════════════════════════════════════════════
+
+    /** Constructor 1: Default */
+    public Payment() {
+        paymentCounter++;
+        this.paymentId = paymentCounter;
+        this.method    = PaymentMethod.CASH;
+        this.isPaid    = false;
+    }
+
+    /** Constructor 2: Parameterized */
+    public Payment(Ride ride, PaymentMethod method) {
+        paymentCounter++;
+        this.paymentId = paymentCounter;
+        this.ride      = ride;
+        this.amount    = ride.getFare();   // get fare from associated ride
+        this.method    = method;
+        this.isPaid    = false;
+    }
+
+    /** Constructor 3: Copy Constructor */
+    public Payment(Payment other) {
+        paymentCounter++;
+        this.paymentId = paymentCounter;  // new unique ID
+        this.ride      = other.ride;      // shallow copy (same ride reference)
+        this.amount    = other.amount;
+        this.method    = other.method;
+        this.isPaid    = other.isPaid;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  METHODS
+    // ════════════════════════════════════════════════════════════
+
+    /** Process and confirm the payment. */
+    public void processPayment() {
+        if (ride == null) {
+            System.out.println("  [!] No ride linked to this payment.");
+            return;
+        }
+        this.isPaid = true;
+        System.out.printf("  Payment #%d: PKR %.2f via %s — CONFIRMED ✓%n",
+                paymentId, amount, method);
+    }
+
+    public void displayPaymentInfo() {
+        System.out.println("  ── Payment #" + paymentId + " ──");
+        System.out.printf( "  Amount  : PKR %.2f%n", amount);
+        System.out.println("  Method  : " + method);
+        System.out.println("  Status  : " + (isPaid ? "Paid ✓" : "Pending"));
+    }
+
+    // ── Getters ──────────────────────────────────────────────────
+    public int           getPaymentId()  { return paymentId; }
+    public double        getAmount()     { return amount;    }
+    public PaymentMethod getMethod()     { return method;    }
+    public boolean       isPaid()        { return isPaid;    }
+    public Ride          getRide()       { return ride;      }
+}
